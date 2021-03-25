@@ -1,4 +1,4 @@
-const { getMonospaceFonts } = require("../lib/binding");
+const { getMonospaceFonts } = require("../binding");
 const assert = require("assert");
 
 assert(getMonospaceFonts, "The expected function is undefined");

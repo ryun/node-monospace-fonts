@@ -9,13 +9,16 @@
     "email": "bmealhouse@gmail.com",
     "url": "https://bmealhouse.dev"
   },
-  "main": "lib/binding.js",
-  "types": "lib/index.d.ts",
+  "main": "./binding.js",
+  "types": "./index.d.ts",
   "gypfile": true,
   "scripts": {
-    "test": "node --napi-modules ./test/test_binding.js"
+    "install": "node-gyp-build",
+    "prebuilds": "./build.sh",
+    "test": "node --napi-modules ./test/test-binding.js"
   },
   "dependencies": {
-    "node-addon-api": "3.1.0"
+    "node-addon-api": "3.1.0",
+    "node-gyp-build": "4.2.3"
   }
 }
