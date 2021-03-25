@@ -1,0 +1,21 @@
+{
+  "name": "node-monospace-fonts",
+  "version": "0.0.1",
+  "description": "Get a list of installed monospace fonts",
+  "license": "MIT",
+  "repository": "https://github.com/bmealhouse/node-monospace-fonts",
+  "author": {
+    "name": "Brent Mealhouse",
+    "email": "bmealhouse@gmail.com",
+    "url": "https://bmealhouse.dev"
+  },
+  "main": "lib/binding.js",
+  "types": "lib/index.d.ts",
+  "gypfile": true,
+  "scripts": {
+    "test": "node --napi-modules ./test/test_binding.js"
+  },
+  "dependencies": {
+    "node-addon-api": "1.1.0"
+  }
+}
