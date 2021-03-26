@@ -13,8 +13,8 @@
   "types": "./index.d.ts",
   "gypfile": true,
   "scripts": {
+    "create-prebuilds": "./prebuild.sh",
     "install": "node-gyp-build",
-    "prebuilds": "./build.sh",
     "test": "node --napi-modules ./test/test-binding.js"
   },
   "dependencies": {
