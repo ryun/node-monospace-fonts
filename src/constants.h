@@ -2,7 +2,8 @@
 
 std::string EXCLUDED_FONTS[] = {
   "Apple Braille",
-  "Apple Color Emoji"
+  "Apple Color Emoji",
+  "GB18030 Bitmap"
 };
 
 std::string INCLUDED_FONTS_MISSING_MONOSPACE_TRAIT[] = {
