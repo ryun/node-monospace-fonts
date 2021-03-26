@@ -28,6 +28,12 @@
             'libraries': ['CoreText.framework', 'Foundation.framework']
           }
         }],
+        ['OS=="linux"', {
+          'sources': ['src/get_monospace_fonts_linux.cc'],
+          'link_settings': {
+            'libraries': ['-lfontconfig']
+          }
+        }]
       ]
     }
   ]
