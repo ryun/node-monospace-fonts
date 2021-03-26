@@ -1,4 +1,5 @@
 #include <fontconfig/fontconfig.h>
+#include <algorithm>
 #include <iostream>
 #include <vector>
 #include "constants.h"
