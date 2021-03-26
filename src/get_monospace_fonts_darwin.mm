@@ -15,7 +15,7 @@ std::vector<std::string> *getMonospaceFonts() {
   std::vector<std::string>::iterator iterator;
   std::string *index;
 
-  // Get system font collection & font descriptors
+  // Get system font collection & descriptors
   CTFontCollectionRef collection = CTFontCollectionCreateFromAvailableFonts(NULL);
   NSArray *descriptors = (NSArray *) CTFontCollectionCreateMatchingFontDescriptors(collection);
 
