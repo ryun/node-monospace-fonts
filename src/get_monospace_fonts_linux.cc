@@ -33,7 +33,7 @@ std::vector<std::string> *getMonospaceFonts() {
 
     // Get font family
     FcPatternGetString(font, FC_FAMILY, 0, &familyVal);
-    std::string family = (char *) familyVal;
+    std::string family = std::string((char *) familyVal);
 
     // Get monospace trait
     FcPatternGetInteger(font, FC_SPACING, 0, &spacing);
