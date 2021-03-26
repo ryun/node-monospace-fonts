@@ -29,7 +29,7 @@ std::vector<std::string> *getMonospaceFonts() {
 
   for (int i = 0; i < fontSet->nfont; i++) {
     FcChar8 *file, *psName, *style, *familyVal;
-    int spacing;
+    int spacing = 0;
     FcPattern *font = fontSet->fonts[i];
 
     // Get font family
