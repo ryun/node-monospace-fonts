@@ -28,6 +28,12 @@
             'libraries': ['CoreText.framework', 'Foundation.framework']
           }
         }],
+        ['OS=="win"', {
+          'sources': ['src/get_monospace_fonts_win32.cc'],
+          'link_settings': {
+            'libraries': ['Dwrite.lib']
+          }
+        }],
         ['OS=="linux"', {
           'sources': ['src/get_monospace_fonts_linux.cc'],
           'link_settings': {
