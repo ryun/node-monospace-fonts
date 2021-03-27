@@ -201,7 +201,7 @@ vector<string> *getMonospaceFonts() {
       bool hasMonospaceTrait = result.second;
 
       if (isExcludedFontFamily(fontFamily, hasMonospaceTrait)) {
-        continue; // TODO: try break?
+        break;
       }
 
       vector<string>::iterator iterator = find(
