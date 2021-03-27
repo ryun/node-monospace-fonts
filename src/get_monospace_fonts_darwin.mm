@@ -4,39 +4,62 @@
 #include <vector>
 #include "utils.h"
 
-std::vector<std::string> *getMonospaceFonts() {
+using namespace std;
+
+NSArray *getSystemFontDesriptors() {
+  CTFontCollectionRef collection =
+    CTFontCollectionCreateFromAvailableFonts(NULL);
+
+  return (NSArray *) CTFontCollectionCreateMatchingFontDescriptors(collection);
+}
+
+string getFontFamily(CTFontDescriptorRef descriptor) {
+  NSString *family = (NSString *) CTFontDescriptorCopyAttribute(
+    descriptor,
+    kCTFontFamilyNameAttribute
+  );
+
+  return [family UTF8String];
+}
+
+int getMonospaceTrait(CTFontDescriptorRef descriptor) {
+  NSDictionary *traits = (NSDictionary *) CTFontDescriptorCopyAttribute(
+    descriptor,
+    kCTFontTraitsAttribute
+  );
+
+  NSNumber *symbolicTraitsValue = traits[(id)kCTFontSymbolicTrait];
+  unsigned int symbolicTraits = [symbolicTraitsValue unsignedIntValue];
+  return (symbolicTraits & kCTFontMonoSpaceTrait);
+}
+
+
+vector<string> *getMonospaceFonts() {
   // Cache monospace fonts for fast use in future calls
-  static std::vector<std::string> *fonts = NULL;
+  static vector<string> *fonts = NULL;
   if (fonts != NULL) {
     return fonts;
   }
 
-  fonts = new std::vector<std::string>();
-  std::vector<std::string>::iterator iterator;
-
-  // Get system font collection & descriptors
-  CTFontCollectionRef collection = CTFontCollectionCreateFromAvailableFonts(NULL);
-  NSArray *descriptors = (NSArray *) CTFontCollectionCreateMatchingFontDescriptors(collection);
+  fonts = new vector<string>();
+  NSArray *descriptors = getSystemFontDesriptors();
 
   for (id d in descriptors) {
     CTFontDescriptorRef descriptor = (CTFontDescriptorRef) d;
 
-    // Get font family from descriptor
-    NSString *familyVal = (NSString *) CTFontDescriptorCopyAttribute(descriptor, kCTFontFamilyNameAttribute);
-    std::string fontFamily = [familyVal UTF8String];
-
-    // Get monospace trait from descriptor
-    NSDictionary *traits = (NSDictionary *) CTFontDescriptorCopyAttribute(descriptor, kCTFontTraitsAttribute);
-    NSNumber *symbolicTraitsVal = traits[(id)kCTFontSymbolicTrait];
-    unsigned int symbolicTraits = [symbolicTraitsVal unsignedIntValue];
-    bool hasMonospaceTrait = (symbolicTraits & kCTFontMonoSpaceTrait) != 0;
-
+    string fontFamily = getFontFamily(descriptor);
+    bool hasMonospaceTrait = getMonospaceTrait(descriptor) != 0;
     if (isExcludedFontFamily(fontFamily, hasMonospaceTrait)) {
       continue;
     }
 
+    vector<string>::iterator iterator = find(
+      fonts->begin(),
+      fonts->end(),
+      fontFamily
+    );
+
     // Add font family to the results list if it doesn't already exist
-    iterator = std::find(fonts->begin(), fonts->end(), fontFamily);
     if (iterator == fonts->end()) {
       fonts->push_back(fontFamily);
     }
