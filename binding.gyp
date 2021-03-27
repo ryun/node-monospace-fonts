@@ -7,11 +7,6 @@
       'dependencies': ["<!(node -p \"require('node-addon-api').gyp\")"],
       'cflags!': ['-fno-exceptions'],
       'cflags_cc!': ['-fno-exceptions'],
-      'msvs_settings': {
-        'VCCLCompilerTool': {
-          'ExceptionHandling': 1
-        },
-      },
       "conditions": [
         ['OS=="mac"', {
           'sources': ['src/get_monospace_fonts_darwin.mm'],
@@ -30,7 +25,12 @@
           'sources': ['src/get_monospace_fonts_win32.cc'],
           'link_settings': {
             'libraries': ['Dwrite.lib']
-          }
+          },
+          'msvs_settings': {
+            'VCCLCompilerTool': {
+              'ExceptionHandling': 1
+            },
+          },
         }],
         ['OS=="linux"', {
           'sources': ['src/get_monospace_fonts_linux.cc'],
