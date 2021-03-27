@@ -180,15 +180,11 @@ vector<string> *getMonospaceFonts() {
     reinterpret_cast<IUnknown**>(&factory)
   ));
 
+  fonts = fonts = new vector<string>();
+
   // Get system font collection
   IDWriteFontCollection *collection = NULL;
   HR(factory->GetSystemFontCollection(&collection));
-
-  // TODO: is this still needed?
-  // Track postscript names we've already added
-  // using a set so we don't get any duplicates
-  unordered_set<string> psNames;
-  fonts = fonts = new vector<string>();
 
   int familyCount = collection->GetFontFamilyCount();
   for (int i = 0; i < familyCount; i++) {
@@ -208,9 +204,15 @@ vector<string> *getMonospaceFonts() {
         continue; // TODO: try break?
       }
 
-      if (psNames.count(fontFamily) == 0) {
+      vector<string>::iterator iterator = find(
+        fonts->begin(),
+        fonts->end(),
+        fontFamily
+      );
+
+      // Add font family to the results list if it doesn't already exist
+      if (iterator == fonts->end()) {
         fonts->push_back(fontFamily);
-        psNames.insert(fontFamily);
       }
     }
 

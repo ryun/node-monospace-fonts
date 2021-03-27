@@ -4,16 +4,15 @@
 #include <vector>
 
 using namespace Napi;
+using namespace std;
 
 // This function is implemented by each platform
-std::vector<std::string> *getMonospaceFonts();
+vector<string> *getMonospaceFonts();
 
-bool compareAlphabetically (std::string a, std::string b) {
-  if (islower(a[0])) {
-    a[0] = toupper(a[0]);
-  }
-  if (islower(b[0])) {
-    b[0] = toupper(b[0]);
+bool compareAlphabetically (string a, string b) {
+  for (int i = 0; i < 3; i++) {
+    a[i] = toupper(a[i]);
+    b[i] = toupper(b[i]);
   }
   return a < b;
 }
@@ -22,8 +21,8 @@ Napi::Array getMonospaceFontsFunc(const Napi::CallbackInfo& info) {
   Napi::Env env = info.Env();
 
   // Get monospace fonts from platform specific code
-  std::vector<std::string> fonts = *getMonospaceFonts();
-  std::sort(fonts.begin(), fonts.end(), compareAlphabetically);
+  vector<string> fonts = *getMonospaceFonts();
+  sort(fonts.begin(), fonts.end(), compareAlphabetically);
 
   // Convert fonts to a Napi::Array of Napi::String for interop with JS
   Napi::Array results = Napi::Array::New(env);

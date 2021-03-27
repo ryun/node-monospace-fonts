@@ -3,9 +3,15 @@
 using namespace std;
 
 std::string EXCLUDED_FONTS[] = {
-  "Apple Braille",
-  "Apple Color Emoji",
-  "GB18030 Bitmap"
+  "Apple Braille",     // darwin
+  "Apple Color Emoji", // darwin
+  "DotumChe",          // win32
+  "GB18030 Bitmap",    // linux
+  "GulimChe",          // win32
+  "MingLiU",           // win32
+  "MS Gothic",         // win32
+  "NSimSun",           // win32
+  "SimSun-ExtB"        // win32
 };
 
 std::string INCLUDED_FONTS_MISSING_MONOSPACE_TRAIT[] = {
