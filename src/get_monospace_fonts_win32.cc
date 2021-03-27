@@ -1,10 +1,7 @@
 #define WINVER 0x0600
 #include <dwrite.h>
 #include <dwrite_1.h>
-#include <algorithm>
-#include <iostream>
 #include <vector>
-#include <unordered_set>
 #include "utils.h"
 
 using namespace std;
