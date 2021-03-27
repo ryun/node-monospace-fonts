@@ -1,6 +1,6 @@
 {
   "name": "node-monospace-fonts",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "Get a list of installed monospace fonts",
   "license": "MIT",
   "repository": "https://github.com/bmealhouse/node-monospace-fonts",
