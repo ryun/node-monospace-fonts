@@ -1,6 +1,5 @@
 #include <Foundation/Foundation.h>
 #include <CoreText/CoreText.h>
-#include <iostream>
 #include <vector>
 #include "utils.h"
 
@@ -32,7 +31,6 @@ int getMonospaceTrait(CTFontDescriptorRef descriptor) {
   unsigned int symbolicTraits = [symbolicTraitsValue unsignedIntValue];
   return (symbolicTraits & kCTFontMonoSpaceTrait);
 }
-
 
 vector<string> *getMonospaceFonts() {
   // Cache monospace fonts for fast use in future calls
