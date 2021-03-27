@@ -5,51 +5,65 @@
 #include <iostream>
 #include <vector>
 #include <unordered_set>
+#include "utils.h"
 
-// throws a JS error when there is some exception in DirectWrite
+using namespace std;
+
+// Throws a JS error when there is some exception in DirectWrite
 #define HR(hr) \
   if (FAILED(hr)) throw "Font loading error";
 
 char *utf16ToUtf8(const WCHAR *input) {
-  unsigned int len = WideCharToMultiByte(CP_UTF8, 0, input, -1, NULL, 0, NULL, NULL);
+  unsigned int len = WideCharToMultiByte(
+    CP_UTF8,
+    0,
+    input,
+    -1,
+    NULL,
+    0,
+    NULL,
+    NULL
+  );
+
   char *output = new char[len];
   WideCharToMultiByte(CP_UTF8, 0, input, -1, output, len, NULL, NULL);
   return output;
 }
 
-// returns the index of the user's locale in the set of localized strings
+// Returns the index of the user's locale in the set of localized strings
 unsigned int getLocaleIndex(IDWriteLocalizedStrings *strings) {
   unsigned int index = 0;
   BOOL exists = false;
   wchar_t localeName[LOCALE_NAME_MAX_LENGTH];
 
-  // Get the default locale for this user.
+  // Get the default locale for this user
   int success = GetUserDefaultLocaleName(localeName, LOCALE_NAME_MAX_LENGTH);
 
-  // If the default locale is returned, find that locale name, otherwise use "en-us".
+  // If the default locale is returned, find
+  // that locale name, otherwise use "en-us"
   if (success) {
     HR(strings->FindLocaleName(localeName, &index, &exists));
   }
 
-  // if the above find did not find a match, retry with US English
+  // If the above find did not find a match, retry with US English
   if (!exists) {
     HR(strings->FindLocaleName(L"en-us", &index, &exists));
   }
 
-  if (!exists)
+  if (!exists) {
     index = 0;
+  }
 
   return index;
 }
 
-// gets a localized string for a font
-char *getString(IDWriteFont *font, DWRITE_INFORMATIONAL_STRING_ID string_id) {
-  char *res = NULL;
-  IDWriteLocalizedStrings *strings = NULL;
+string getFontFamily(IDWriteFont *font) {
+  char *fontFamily = NULL;
 
+  IDWriteLocalizedStrings *strings = NULL;
   BOOL exists = false;
   HR(font->GetInformationalStrings(
-    string_id,
+    DWRITE_INFORMATIONAL_STRING_WIN32_FAMILY_NAMES,
     &strings,
     &exists
   ));
@@ -64,29 +78,30 @@ char *getString(IDWriteFont *font, DWRITE_INFORMATIONAL_STRING_ID string_id) {
 
     HR(strings->GetString(index, str, len + 1));
 
-    // convert to utf8
-    res = utf16ToUtf8(str);
+    // Convert to utf-8
+    fontFamily = utf16ToUtf8(str);
     delete str;
 
     strings->Release();
   }
 
-  if (!res) {
-    res = new char[1];
-    res[0] = '\0';
+  if (!fontFamily) {
+    fontFamily = new char[1];
+    fontFamily[0] = '\0';
   }
 
-  return res;
+  return string(fontFamily);
 }
 
-std::string resultFromFont(IDWriteFont *font) {
-  std::string fontFamily;
-  IDWriteFontFace *face = NULL;
-  unsigned int numFiles = 0;
+pair<string, bool> getFontFamilyAndMonospaceTrait(IDWriteFont *font) {
+  string fontFamily;
+  bool hasMonospaceTrait = false;
 
+  IDWriteFontFace *face = NULL;
   HR(font->CreateFontFace(&face));
 
-  // get the font files from this font face
+  // Get the font files from this font face
+  unsigned int numFiles = 0;
   IDWriteFontFile *files = NULL;
   HR(face->GetFiles(&numFiles, NULL));
   HR(face->GetFiles(&numFiles, &files));
@@ -94,56 +109,51 @@ std::string resultFromFont(IDWriteFont *font) {
   // return the first one
   if (numFiles > 0) {
     IDWriteFontFileLoader *loader = NULL;
-    IDWriteLocalFontFileLoader *fileLoader = NULL;
-    unsigned int nameLength = 0;
-    const void *referenceKey = NULL;
-    unsigned int referenceKeySize = 0;
-    WCHAR *name = NULL;
-
     HR(files[0].GetLoader(&loader));
 
-    // check if this is a local font file
-    HRESULT hr = loader->QueryInterface(__uuidof(IDWriteLocalFontFileLoader), (void **)&fileLoader);
+    // Check if this is a local font file
+    IDWriteLocalFontFileLoader *fileLoader = NULL;
+    HRESULT hr = loader->QueryInterface(
+      __uuidof(IDWriteLocalFontFileLoader),
+      (void **)&fileLoader
+    );
+
     if (SUCCEEDED(hr)) {
-      // get the file path
+      // Get the file path
+      const void *referenceKey = NULL;
+      unsigned int referenceKeySize = 0;
+      unsigned int nameLength = 0;
       HR(files[0].GetReferenceKey(&referenceKey, &referenceKeySize));
-      HR(fileLoader->GetFilePathLengthFromKey(referenceKey, referenceKeySize, &nameLength));
+      HR(fileLoader->GetFilePathLengthFromKey(
+        referenceKey,
+        referenceKeySize,
+        &nameLength
+      ));
 
-      name = new WCHAR[nameLength + 1];
-      HR(fileLoader->GetFilePathFromKey(referenceKey, referenceKeySize, name, nameLength + 1));
+      WCHAR *name = new WCHAR[nameLength + 1];
+      HR(fileLoader->GetFilePathFromKey(
+        referenceKey,
+        referenceKeySize,
+        name,
+        nameLength + 1
+      ));
 
-      char *psName = utf16ToUtf8(name);
-      char *postscriptName = getString(font, DWRITE_INFORMATIONAL_STRING_POSTSCRIPT_NAME);
-      char *family = getString(font, DWRITE_INFORMATIONAL_STRING_WIN32_FAMILY_NAMES);
-      char *style = getString(font, DWRITE_INFORMATIONAL_STRING_WIN32_SUBFAMILY_NAMES);
+      fontFamily = getFontFamily(font);
 
-      bool monospace = false;
-      // this method requires windows 7, so we need to cast to an IDWriteFontFace1
-
+      // This method requires windows 7, so we
+      // need to cast to an IDWriteFontFace1
       IDWriteFontFace1 *face1;
-      HRESULT hr = face->QueryInterface(__uuidof(IDWriteFontFace1), (void **)&face1);
+      HRESULT hr = face->QueryInterface(
+        __uuidof(IDWriteFontFace1),
+        (void **)&face1
+      );
+
       if (SUCCEEDED(hr)) {
-        monospace = face1->IsMonospacedFont() == TRUE;
+        hasMonospaceTrait = face1->IsMonospacedFont() == TRUE;
       }
 
-      // res = new FontDescriptor(
-      //   psName,
-      //   postscriptName,
-      //   family,
-      //   style,
-      //   (FontWeight) font->GetWeight(),
-      //   (FontWidth) font->GetStretch(),
-      //   font->GetStyle() == DWRITE_FONT_STYLE_ITALIC,
-      //   monospace
-      // );
-
-      fontFamily = std::string(family);
-
-      delete psName;
       delete name;
-      delete postscriptName;
-      delete family;
-      delete style;
+      // delete fontFamily;
       fileLoader->Release();
     }
 
@@ -153,12 +163,15 @@ std::string resultFromFont(IDWriteFont *font) {
   face->Release();
   files->Release();
 
-  return fontFamily;
+  return make_pair(fontFamily, hasMonospaceTrait);
 }
 
-std::vector<std::string> *getMonospaceFonts() {
-  std::vector<std::string> *fonts = new std::vector<std::string>();
-  int count = 0;
+vector<string> *getMonospaceFonts() {
+  // Cache monospace fonts for fast use in future calls
+  static vector<string> *fonts = NULL;
+  if (fonts != NULL) {
+    return fonts;
+  }
 
   IDWriteFactory *factory = NULL;
   HR(DWriteCreateFactory(
@@ -167,29 +180,34 @@ std::vector<std::string> *getMonospaceFonts() {
     reinterpret_cast<IUnknown**>(&factory)
   ));
 
-  // Get the system font collection
+  // Get system font collection
   IDWriteFontCollection *collection = NULL;
   HR(factory->GetSystemFontCollection(&collection));
 
-  // Get the number of font families in the collection
-  int familyCount = collection->GetFontFamilyCount();
-
+  // TODO: is this still needed?
   // Track postscript names we've already added
   // using a set so we don't get any duplicates
-  std::unordered_set<std::string> psNames;
+  unordered_set<string> psNames;
+  fonts = fonts = new vector<string>();
 
+  int familyCount = collection->GetFontFamilyCount();
   for (int i = 0; i < familyCount; i++) {
     IDWriteFontFamily *family = NULL;
-
-    // Get the font family
     HR(collection->GetFontFamily(i, &family));
-    int fontCount = family->GetFontCount();
 
+    int fontCount = family->GetFontCount();
     for (int j = 0; j < fontCount; j++) {
       IDWriteFont *font = NULL;
       HR(family->GetFont(j, &font));
 
-      std::string fontFamily = resultFromFont(font);
+      pair<string, bool> result = getFontFamilyAndMonospaceTrait(font);
+      string fontFamily = result.first;
+      bool hasMonospaceTrait = result.second;
+
+      if (isExcludedFontFamily(fontFamily, hasMonospaceTrait)) {
+        continue; // TODO: try break?
+      }
+
       if (psNames.count(fontFamily) == 0) {
         fonts->push_back(fontFamily);
         psNames.insert(fontFamily);
