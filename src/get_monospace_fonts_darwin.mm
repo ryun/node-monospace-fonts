@@ -24,7 +24,7 @@ std::vector<std::string> *getMonospaceFonts() {
 
     // Get font family from descriptor
     NSString *familyVal = (NSString *) CTFontDescriptorCopyAttribute(descriptor, kCTFontFamilyNameAttribute);
-    std::string family = [familyVal UTF8String];
+    std::string fontFamily = [familyVal UTF8String];
 
     // Get monospace trait from descriptor
     NSDictionary *traits = (NSDictionary *) CTFontDescriptorCopyAttribute(descriptor, kCTFontTraitsAttribute);
@@ -32,22 +32,20 @@ std::vector<std::string> *getMonospaceFonts() {
     unsigned int symbolicTraits = [symbolicTraitsVal unsignedIntValue];
     bool hasMonospaceTrait = (symbolicTraits & kCTFontMonoSpaceTrait) != 0;
 
-    // Skip excluded fonts
-    index = std::find(std::begin(EXCLUDED_FONTS), std::end(EXCLUDED_FONTS), family);
-    if (index != std::end(EXCLUDED_FONTS)) {
+    if (isExcludedFontFamily(fontFamily)) {
       continue;
     }
 
     // Skip fonts without a monospace trait that don't exist in the include fonts list
-    index = std::find(std::begin(INCLUDED_FONTS_MISSING_MONOSPACE_TRAIT), std::end(INCLUDED_FONTS_MISSING_MONOSPACE_TRAIT), family);
+    index = std::find(std::begin(INCLUDED_FONTS_MISSING_MONOSPACE_TRAIT), std::end(INCLUDED_FONTS_MISSING_MONOSPACE_TRAIT), fontFamily);
     if (!hasMonospaceTrait && index == std::end(INCLUDED_FONTS_MISSING_MONOSPACE_TRAIT)) {
       continue;
     }
 
     // Add font family to the results list if it doesn't already exist
-    iterator = std::find(fonts->begin(), fonts->end(), family);
+    iterator = std::find(fonts->begin(), fonts->end(), fontFamily);
     if (iterator == fonts->end()) {
-      fonts->push_back(family);
+      fonts->push_back(fontFamily);
     }
   }
 

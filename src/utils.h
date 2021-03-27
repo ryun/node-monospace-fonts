@@ -1,5 +1,7 @@
 #include <iostream>
 
+using namespace std;
+
 std::string EXCLUDED_FONTS[] = {
   "Apple Braille",
   "Apple Color Emoji",
@@ -32,3 +34,10 @@ std::string INCLUDED_FONTS_MISSING_MONOSPACE_TRAIT[] = {
   "NotCourierSans",
   "Terminus"
 };
+
+bool isExcludedFontFamily(string fontFamily) {
+  string *index = find(begin(EXCLUDED_FONTS), end(EXCLUDED_FONTS), fontFamily);
+  return index != end(EXCLUDED_FONTS);
+}
+
+

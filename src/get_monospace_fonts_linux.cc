@@ -34,28 +34,26 @@ std::vector<std::string> *getMonospaceFonts() {
 
     // Get font family
     FcPatternGetString(font, FC_FAMILY, 0, &familyVal);
-    std::string family = std::string((char *) familyVal);
+    std::string fontFamily = std::string((char *) familyVal);
 
     // Get monospace trait
     FcPatternGetInteger(font, FC_SPACING, 0, &spacing);
     bool hasMonospaceTrait = spacing == FC_MONO;
 
-    // Skip excluded fonts
-    index = std::find(std::begin(EXCLUDED_FONTS), std::end(EXCLUDED_FONTS), family);
-    if (index != std::end(EXCLUDED_FONTS)) {
+    if (isExcludedFontFamily(fontFamily)) {
       continue;
     }
 
     // Skip fonts without a monospace trait that don't exist in the include fonts list
-    index = std::find(std::begin(INCLUDED_FONTS_MISSING_MONOSPACE_TRAIT), std::end(INCLUDED_FONTS_MISSING_MONOSPACE_TRAIT), family);
+    index = std::find(std::begin(INCLUDED_FONTS_MISSING_MONOSPACE_TRAIT), std::end(INCLUDED_FONTS_MISSING_MONOSPACE_TRAIT), fontFamily);
     if (!hasMonospaceTrait && index == std::end(INCLUDED_FONTS_MISSING_MONOSPACE_TRAIT)) {
       continue;
     }
 
     // Add font family to the results list if it doesn't already exist
-    iterator = std::find(fonts->begin(), fonts->end(), family);
+    iterator = std::find(fonts->begin(), fonts->end(), fontFamily);
     if (iterator == fonts->end()) {
-      fonts->push_back(family);
+      fonts->push_back(fontFamily);
     }
   }
 
