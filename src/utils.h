@@ -35,9 +35,22 @@ std::string INCLUDED_FONTS_MISSING_MONOSPACE_TRAIT[] = {
   "Terminus"
 };
 
-bool isExcludedFontFamily(string fontFamily) {
-  string *index = find(begin(EXCLUDED_FONTS), end(EXCLUDED_FONTS), fontFamily);
-  return index != end(EXCLUDED_FONTS);
+bool isExcludedFontFamily(string fontFamily, bool hasMonospaceTrait) {
+  string *index;
+
+  index = find(begin(EXCLUDED_FONTS), end(EXCLUDED_FONTS), fontFamily);
+  if (index != end(EXCLUDED_FONTS)) {
+    return true;
+  }
+
+  index = find(
+    begin(INCLUDED_FONTS_MISSING_MONOSPACE_TRAIT),
+    end(INCLUDED_FONTS_MISSING_MONOSPACE_TRAIT),
+    fontFamily
+  );
+
+  return !hasMonospaceTrait &&
+    index == end(INCLUDED_FONTS_MISSING_MONOSPACE_TRAIT);
 }
 
 

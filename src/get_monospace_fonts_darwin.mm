@@ -13,7 +13,6 @@ std::vector<std::string> *getMonospaceFonts() {
 
   fonts = new std::vector<std::string>();
   std::vector<std::string>::iterator iterator;
-  std::string *index;
 
   // Get system font collection & descriptors
   CTFontCollectionRef collection = CTFontCollectionCreateFromAvailableFonts(NULL);
@@ -32,13 +31,7 @@ std::vector<std::string> *getMonospaceFonts() {
     unsigned int symbolicTraits = [symbolicTraitsVal unsignedIntValue];
     bool hasMonospaceTrait = (symbolicTraits & kCTFontMonoSpaceTrait) != 0;
 
-    if (isExcludedFontFamily(fontFamily)) {
-      continue;
-    }
-
-    // Skip fonts without a monospace trait that don't exist in the include fonts list
-    index = std::find(std::begin(INCLUDED_FONTS_MISSING_MONOSPACE_TRAIT), std::end(INCLUDED_FONTS_MISSING_MONOSPACE_TRAIT), fontFamily);
-    if (!hasMonospaceTrait && index == std::end(INCLUDED_FONTS_MISSING_MONOSPACE_TRAIT)) {
+    if (isExcludedFontFamily(fontFamily, hasMonospaceTrait)) {
       continue;
     }
 

@@ -24,8 +24,6 @@ std::vector<std::string> *getMonospaceFonts() {
 
   fonts = new std::vector<std::string>();
   std::vector<std::string>::iterator iterator;
-  std::string *index;
-
 
   for (int i = 0; i < fontSet->nfont; i++) {
     FcChar8 *familyVal;
@@ -40,13 +38,7 @@ std::vector<std::string> *getMonospaceFonts() {
     FcPatternGetInteger(font, FC_SPACING, 0, &spacing);
     bool hasMonospaceTrait = spacing == FC_MONO;
 
-    if (isExcludedFontFamily(fontFamily)) {
-      continue;
-    }
-
-    // Skip fonts without a monospace trait that don't exist in the include fonts list
-    index = std::find(std::begin(INCLUDED_FONTS_MISSING_MONOSPACE_TRAIT), std::end(INCLUDED_FONTS_MISSING_MONOSPACE_TRAIT), fontFamily);
-    if (!hasMonospaceTrait && index == std::end(INCLUDED_FONTS_MISSING_MONOSPACE_TRAIT)) {
+    if (isExcludedFontFamily(fontFamily, hasMonospaceTrait)) {
       continue;
     }
 
