@@ -14,7 +14,7 @@ bool compareAlphabetically(string a, string b) {
   return a < b;
 }
 
-Napi::Array getMonospaceFontsFunc(const Napi::CallbackInfo& info) {
+Napi::Array getMonospaceFontsNapiWrapper(const Napi::CallbackInfo& info) {
   Napi::Env env = info.Env();
 
   // Get monospace fonts from platform specific code
@@ -31,7 +31,7 @@ Napi::Array getMonospaceFontsFunc(const Napi::CallbackInfo& info) {
 
 Napi::Object Init(Napi::Env env, Napi::Object exports) {
   exports.Set(Napi::String::New(env, "getMonospaceFonts"),
-              Napi::Function::New(env, getMonospaceFontsFunc));
+              Napi::Function::New(env, getMonospaceFontsNapiWrapper));
   return exports;
 }
 
