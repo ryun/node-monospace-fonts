@@ -14,17 +14,7 @@ using namespace std;
   if (FAILED(hr)) throw "Font loading error";
 
 char *utf16ToUtf8(const WCHAR *input) {
-  unsigned int len = WideCharToMultiByte(
-    CP_UTF8,
-    0,
-    input,
-    -1,
-    NULL,
-    0,
-    NULL,
-    NULL
-  );
-
+  unsigned int len = WideCharToMultiByte(CP_UTF8, 0, input, -1, NULL, 0, NULL, NULL);
   char *output = new char[len];
   WideCharToMultiByte(CP_UTF8, 0, input, -1, output, len, NULL, NULL);
   return output;
@@ -119,25 +109,6 @@ pair<string, bool> getFontFamilyAndMonospaceTrait(IDWriteFont *font) {
     );
 
     if (SUCCEEDED(hr)) {
-      // Get the file path
-      const void *referenceKey = NULL;
-      unsigned int referenceKeySize = 0;
-      unsigned int nameLength = 0;
-      HR(files[0].GetReferenceKey(&referenceKey, &referenceKeySize));
-      HR(fileLoader->GetFilePathLengthFromKey(
-        referenceKey,
-        referenceKeySize,
-        &nameLength
-      ));
-
-      WCHAR *name = new WCHAR[nameLength + 1];
-      HR(fileLoader->GetFilePathFromKey(
-        referenceKey,
-        referenceKeySize,
-        name,
-        nameLength + 1
-      ));
-
       fontFamily = getFontFamily(font);
 
       // This method requires windows 7, so we
@@ -152,8 +123,6 @@ pair<string, bool> getFontFamilyAndMonospaceTrait(IDWriteFont *font) {
         hasMonospaceTrait = face1->IsMonospacedFont() == TRUE;
       }
 
-      delete name;
-      // delete fontFamily;
       fileLoader->Release();
     }
 
