@@ -10,8 +10,77 @@
 #define HR(hr) \
   if (FAILED(hr)) throw "Font loading error";
 
-std::string *resultFromFont(IDWriteFont *font) {
-  std::string *fontFamily = NULL;
+char *utf16ToUtf8(const WCHAR *input) {
+  unsigned int len = WideCharToMultiByte(CP_UTF8, 0, input, -1, NULL, 0, NULL, NULL);
+  char *output = new char[len];
+  WideCharToMultiByte(CP_UTF8, 0, input, -1, output, len, NULL, NULL);
+  return output;
+}
+
+// returns the index of the user's locale in the set of localized strings
+unsigned int getLocaleIndex(IDWriteLocalizedStrings *strings) {
+  unsigned int index = 0;
+  BOOL exists = false;
+  wchar_t localeName[LOCALE_NAME_MAX_LENGTH];
+
+  // Get the default locale for this user.
+  int success = GetUserDefaultLocaleName(localeName, LOCALE_NAME_MAX_LENGTH);
+
+  // If the default locale is returned, find that locale name, otherwise use "en-us".
+  if (success) {
+    HR(strings->FindLocaleName(localeName, &index, &exists));
+  }
+
+  // if the above find did not find a match, retry with US English
+  if (!exists) {
+    HR(strings->FindLocaleName(L"en-us", &index, &exists));
+  }
+
+  if (!exists)
+    index = 0;
+
+  return index;
+}
+
+// gets a localized string for a font
+char *getString(IDWriteFont *font, DWRITE_INFORMATIONAL_STRING_ID string_id) {
+  char *res = NULL;
+  IDWriteLocalizedStrings *strings = NULL;
+
+  BOOL exists = false;
+  HR(font->GetInformationalStrings(
+    string_id,
+    &strings,
+    &exists
+  ));
+
+  if (exists) {
+    unsigned int index = getLocaleIndex(strings);
+    unsigned int len = 0;
+    WCHAR *str = NULL;
+
+    HR(strings->GetStringLength(index, &len));
+    str = new WCHAR[len + 1];
+
+    HR(strings->GetString(index, str, len + 1));
+
+    // convert to utf8
+    res = utf16ToUtf8(str);
+    delete str;
+
+    strings->Release();
+  }
+
+  if (!res) {
+    res = new char[1];
+    res[0] = '\0';
+  }
+
+  return res;
+}
+
+std::string resultFromFont(IDWriteFont *font) {
+  std::string fontFamily;
   IDWriteFontFace *face = NULL;
   unsigned int numFiles = 0;
 
@@ -68,7 +137,7 @@ std::string *resultFromFont(IDWriteFont *font) {
       //   monospace
       // );
 
-      fontFamily = std::string(family)
+      fontFamily = std::string(family);
 
       delete psName;
       delete name;
@@ -87,7 +156,7 @@ std::string *resultFromFont(IDWriteFont *font) {
   return fontFamily;
 }
 
-std::vector<std::string> *getAvailableFonts() {
+std::vector<std::string> *getMonospaceFonts() {
   std::vector<std::string> *fonts = new std::vector<std::string>();
   int count = 0;
 
