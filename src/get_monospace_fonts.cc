@@ -1,7 +1,4 @@
 #include <napi.h>
-#include <iostream>
-#include <locale>
-#include <vector>
 
 using namespace Napi;
 using namespace std;
@@ -9,7 +6,7 @@ using namespace std;
 // This function is implemented by each platform
 vector<string> *getMonospaceFonts();
 
-bool compareAlphabetically (string a, string b) {
+bool compareAlphabetically(string a, string b) {
   for (int i = 0; i < 3; i++) {
     a[i] = toupper(a[i]);
     b[i] = toupper(b[i]);

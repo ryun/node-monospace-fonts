@@ -2,7 +2,7 @@
 
 using namespace std;
 
-std::string EXCLUDED_FONTS[] = {
+string EXCLUDED_FONTS[] = {
   "Apple Braille",     // darwin
   "Apple Color Emoji", // darwin
   "DotumChe",          // win32
@@ -14,7 +14,7 @@ std::string EXCLUDED_FONTS[] = {
   "SimSun-ExtB"        // win32
 };
 
-std::string INCLUDED_FONTS_MISSING_MONOSPACE_TRAIT[] = {
+string INCLUDED_FONTS_MISSING_MONOSPACE_TRAIT[] = {
   "AverageMono",
   "Fira Code iScript",
   "Generic Mono II",
