@@ -1,13 +1,13 @@
 {
-  "name": "node-monospace-fonts",
+  "name": "list-monospace-fonts",
   "version": "0.0.3",
   "description": "Get a list of installed monospace fonts",
   "license": "MIT",
-  "repository": "https://github.com/bmealhouse/node-monospace-fonts",
+  "repository": "https://github.com/ryun/node-monospace-fonts",
   "author": {
-    "name": "Brent Mealhouse",
-    "email": "bmealhouse@gmail.com",
-    "url": "https://bmealhouse.dev"
+    "name": "Ryun S.",
+    "email": "ryun@humboldtweb.com",
+    "url": "https://humboldtweb.com"
   },
   "main": "./binding.js",
   "types": "./index.d.ts",
